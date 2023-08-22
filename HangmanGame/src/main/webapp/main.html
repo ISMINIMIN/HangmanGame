@@ -1,134 +1,148 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<title>HANGMAN GAME</title>
-	<style>
-		#field {
-			width: 700px;
-			margin: 0 auto;
-			border: 3px solid black; 
-			text-align: center; 
-		}
-		
-		#word {
-			font-size: 20pt;
-			font-weight: bold;
-		}
-		
-		#alp {
-			margin-top: 20px;
-			margin-bottom: 20px;
-		}
-		
-		#alp > button {
-			width: 40px;
-			height: 40px;
-			background: white;
-			border: none;
-			font-size: 15pt;
-			font-weight: bold;
-		}
-		
-		#life {
-			margin-bottom: 30px;
-			font-weight: bold;
-		}
-	</style>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-	<script>
-		let answers = ["ALLIGATOR", "RABBIT", "CAMEL", "ELEPHANT", "MONKEY", "MOUSE", "DOLPIN"]
-		let random = Math.floor(Math.random() * answers.length)
-		let answer = answers[random].split("")
-		let count = 7
-		let correct = 0
-		
-		function restart() {
-			random = Math.floor(Math.random() * answers.length)
-			answer = answers[random].split("")
-			count = 7
-			correct = 0
-			
-			$("#life").html("남은 기회 : " + count)
-			init_word()
-			init_alp()
-			init_event()
-		}
-		
-		function init_word() {
-			let word = $("#word")
-			let html = ""
-			
-			word.empty()
-					
-			for(let i=0; i<answer.length; i++) {
-				html += "<span id='"+i+"'>_</span>"
-				html += " "
-			}
-			
-			word.html(html)
-		}
-		
-		function init_alp() {
-			let alp = $("#alp")
-			let html = ""
-			
-			alp.empty()
-					
-			for(let i=65; i<91; i++) {
-				let alp = String.fromCharCode(i)
-				html += "<button data-alp='"+alp+"'>" + alp + "</button>"
-				if(i == 77) {
-					html += "<br>"
-				}
-			}
-			
-			alp.html(html)
-		}
-		
-		function init_event() {
-			$("#alp > button").click(function() {
-				let curr = $(this).data("alp")
-				let cnt = answer.length;
-				for(let i=0; i<answer.length; i++) {
-					if(curr == answer[i]) {
-						correct++
-						$("#"+i).html(curr)
-					} else {
-						cnt--
-					}
-				}
-				$(this).css("color", "orange")
-				
-				if(cnt == 0) {
-					count--
-					$("#life").html("남은 기회 : " + count)
-				}
-				if(count == 0) {
-					alert("정답은 " + answer.join("") +"입니다. 당신은 바보입니까?")
-					restart()
-				}
-				if(correct == answer.length) {
-					alert("추카추카~ 똑똑한 사람입니다 !")
-					restart()
-				}
-			})
-		}
-		
-		$(function() {
-			$("#life").html("남은 기회 : " + count)
-			init_word()
-			init_alp()
-			init_event()
-		})
-	</script>
+  <meta charset="UTF-8">
+  <title>HANGMAN GAME</title>
+  <style>
+    #field {
+      width: 700px;
+      margin: 0 auto;
+      border: 3px solid black;
+      text-align: center;
+    }
+    
+    #answer {
+      font-size: 35pt;
+      font-weight: bold;
+      color: royalblue;
+    }
+    
+    #alphabet {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    
+    #alphabet > button {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border: none;
+      font-size: 15pt;
+      font-weight: bold;
+    }
+    
+    #check {
+      margin-bottom: 30px;
+      font-size: 20pt;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+  <script>
+    let words = ["ALLIGATOR", "RABBIT", "CAMEL", "ELEPHANT", "MONKEY", "MOUSE", "DOLPIN", "CHIMPANZEE", "GIRAFFE", "HIPPO", "TURTLE"]
+    let random = Math.floor(Math.random() * words.length)
+    let word = words[random].split("")
+    let count = 7
+    let correct = 0
+    let my_alphabet = []
+    
+    function init_answer() {
+      let answer = $("#answer")
+      let html = ""
+      
+      answer.empty()
+      
+      for(let i=0; i<word.length; i++) {
+        html += "<span id='"+i+"'>_</span>"
+        html += " "
+      }
+      
+      answer.html(html)
+    }
+    
+    function init_alphabet() {
+      let alphabet = $("#alphabet")
+      let html = ""
+      
+      alphabet.empty()
+      
+      for(let i=65; i<91; i++) {
+        let alp = String.fromCharCode(i)
+        html += "<button data-alp='"+alp+"'>" + alp + "</button>"
+        if(i == 77) {
+          html += "<br>"
+        }
+      }
+      
+      alphabet.html(html)
+    }
+    
+    function init_event() {
+      $("#alphabet > button").click(function() {
+        let currAlp = $(this).data("alp")
+        let missCnt = 0
+        if(!my_alphabet.includes(currAlp)) {
+          for(let i=0; i<word.length; i++) {
+            if(currAlp == word[i]) {
+              correct++
+              $("#" + i).html(currAlp)
+            } else {
+              missCnt++
+            }
+          }
+          
+          my_alphabet.push(currAlp)
+          $(this).css("color", "orange")
+          
+          if(missCnt == word.length) {
+            count--
+            let life = "💛".repeat(count) + "🖤".repeat(7-count)
+            $("#check").html(life)
+          }
+          
+          if(count == 0) {
+            setTimeout("alert_message('정답은 ' + word.join('') +'입니다. 당신은 바보입니까?')", 500)
+          }
+          
+          if(correct == word.length) {
+            setTimeout("alert_message('추카추카~ 똑똑한 사람입니다 !')", 500)
+          }
+        }
+      })
+    }
+    
+    function restart() {
+      random = Math.floor(Math.random() * words.length)
+      word = words[random].split("")
+      count = 7
+      correct = 0
+      my_alphabet = []
+      
+      $("#check").html("💛💛💛💛💛💛💛")
+      init_answer()
+      init_alphabet()
+      init_event()
+    }
+    
+    function alert_message(message) {
+      alert(message)
+      restart()
+    }
+    
+    $(function() {
+      $("#check").html("💛💛💛💛💛💛💛")
+      init_answer()
+      init_alphabet()
+      init_event()
+    })
+  </script>
 </head>
 <body>
-	<div id="field">
-		<h1>HANGMAN GAME</h1>
-		<div id="word"></div>
-		<div id="alp"></div>
-		<div id="life"></div>
-	</div>
+  <div id="field">
+    <h1 style="margin-bottom: 10px;">HANGMAN GAME</h1>
+    <h2 style="margin-top: 0;">Category: Animals</h2>
+    <div id="answer"></div>
+    <div id="alphabet"></div>
+    <div id="check"></div>
+  </div>
 </body>
 </html>
